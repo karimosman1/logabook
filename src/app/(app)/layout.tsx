@@ -5,9 +5,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
       <header className="border-b border-line bg-paper-raised">
-        <nav className="mx-auto flex max-w-5xl items-center gap-6 px-4 py-3">
-          <Link href="/books" className="font-serif text-2xl text-ink">
+        <nav className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
+          <Link href="/" className="font-serif text-2xl text-ink">
             Logabook
+          </Link>
+          <Link href="/" className="text-sm text-ink-muted hover:text-ink">
+            Calendar
           </Link>
           <Link href="/books" className="text-sm text-ink-muted hover:text-ink">
             Library
