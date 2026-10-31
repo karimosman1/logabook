@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { dayStatus, monthGrid, monthLabel, shiftMonth, type DayStatus } from "@/lib/calendar";
-import { pagesPerDay } from "@/lib/stats";
+import { pagesPerDay, streaks } from "@/lib/stats";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Calendar · Logabook" };
@@ -25,17 +25,15 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     data: { user },
   } = await supabase.auth.getUser();
 
+  // All sessions, not just this month's: a streak can run across months
   const [{ data: sessions }, { data: profile }] = await Promise.all([
-    supabase
-      .from("reading_sessions")
-      .select("session_date, pages_read")
-      .gte("session_date", `${month}-01`)
-      .lt("session_date", `${shiftMonth(month, 1)}-01`),
+    supabase.from("reading_sessions").select("session_date, pages_read"),
     supabase.from("users").select("daily_page_goal").eq("id", user!.id).single(),
   ]);
 
   const goal = profile?.daily_page_goal ?? 10;
   const pages = pagesPerDay(sessions ?? []);
+  const streak = streaks(sessions ?? [], today, goal);
   const weeks = monthGrid(month);
 
   const pastDays = weeks.flat().filter((d): d is string => !!d && d <= today);
@@ -72,6 +70,31 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           </Link>
         </nav>
       </div>
+
+      <section className="mt-6 flex max-w-2xl flex-wrap gap-4" aria-label="Streaks">
+        <div className="flex-1 rounded-xl border border-line bg-paper-raised p-4">
+          <p className="text-sm text-ink-muted">Current streak</p>
+          <p className="font-serif text-3xl text-ink">
+            {streak.current} day{streak.current === 1 ? "" : "s"} {streak.current > 0 && <span aria-hidden>🔥</span>}
+          </p>
+          <p className="mt-1 text-sm text-ink-muted">
+            {streak.hitToday
+              ? "Today's goal is done. See you tomorrow."
+              : streak.current > 0
+                ? `Read ${goal} pages today to keep it going.`
+                : `Read ${goal} pages today to start a streak.`}
+          </p>
+        </div>
+        <div className="flex-1 rounded-xl border border-line bg-paper-raised p-4">
+          <p className="text-sm text-ink-muted">Longest streak</p>
+          <p className="font-serif text-3xl text-ink">
+            {streak.longest} day{streak.longest === 1 ? "" : "s"}
+          </p>
+          <p className="mt-1 text-sm text-ink-muted">
+            {streak.longest > 0 && streak.current === streak.longest ? "You're on your best run!" : "Your best run so far."}
+          </p>
+        </div>
+      </section>
 
       <table className="mt-6 w-full max-w-2xl table-fixed border-separate border-spacing-1.5 sm:border-spacing-2">
         <thead>
