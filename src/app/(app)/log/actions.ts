@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasErrors, validateSession, type FieldErrors } from "@/lib/validation";
 
-export type LogFormState = { error?: string };
+export type LogFormState = { error?: string; fieldErrors?: FieldErrors };
 
 function toNumber(value: FormDataEntryValue | null) {
   const s = String(value ?? "").trim();
@@ -14,21 +15,29 @@ function toNumber(value: FormDataEntryValue | null) {
 
 export async function logSession(_prev: LogFormState, formData: FormData): Promise<LogFormState> {
   const bookId = String(formData.get("book_id") ?? "");
-  if (!bookId) return { error: "Please choose which book you read." };
-
   const sessionDate = String(formData.get("session_date") ?? "");
   const startPage = toNumber(formData.get("start_page"));
   const endPage = toNumber(formData.get("end_page"));
-  // Pages 1 to 12 is 12 pages, so count both ends
-  const pagesRead = startPage !== null && endPage !== null ? endPage - startPage + 1 : null;
 
   const supabase = await createClient();
+  const { data: book } = bookId
+    ? await supabase.from("books").select("total_pages, last_read_at").eq("id", bookId).maybeSingle()
+    : { data: null };
+
+  const fieldErrors = validateSession(
+    { bookId: book ? bookId : "", sessionDate, startPage, endPage, totalPages: book?.total_pages ?? null },
+    new Date().toISOString().slice(0, 10),
+  );
+  if (hasErrors(fieldErrors)) return { error: "Please fix the highlighted fields.", fieldErrors };
+
+  // Pages 1 to 12 is 12 pages, so count both ends
+  const pagesRead = endPage! - startPage! + 1;
 
   const { data: session, error } = await supabase
     .from("reading_sessions")
     .insert({
       book_id: bookId,
-      session_date: sessionDate || undefined,
+      session_date: sessionDate,
       start_page: startPage,
       end_page: endPage,
       pages_read: pagesRead,
@@ -58,8 +67,7 @@ export async function logSession(_prev: LogFormState, formData: FormData): Promi
   }
 
   // Keep the library's "last read" order and the book's status up to date
-  const { data: book } = await supabase.from("books").select("status, total_pages, last_read_at").eq("id", bookId).single();
-  const finished = book?.total_pages != null && endPage != null && endPage >= book.total_pages;
+  const finished = book?.total_pages != null && endPage! >= book.total_pages;
   const lastReadAt =
     book?.last_read_at && book.last_read_at > session.session_date ? book.last_read_at : session.session_date;
   await supabase

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
+import { FieldError, invalidClass } from "@/components/field-error";
 import { logSession } from "./actions";
 
 type BookOption = {
@@ -24,6 +25,7 @@ function localToday() {
 
 export function LogForm({ books, preselected }: Props) {
   const [state, formAction, saving] = useActionState(logSession, {});
+  const errors = state.fieldErrors ?? {};
 
   const initialBook = books.find((b) => b.id === preselected) ?? books[0];
   const [bookId, setBookId] = useState(initialBook?.id ?? "");
@@ -56,13 +58,20 @@ export function LogForm({ books, preselected }: Props) {
   }
 
   const pages = Number(endPage) - Number(startPage) + 1;
+  const pastLastPage = !!book?.totalPages && Number(endPage) > book.totalPages;
 
   return (
     <form action={formAction} className="mt-6 max-w-2xl space-y-6" noValidate>
       <section className="space-y-4 rounded-xl border border-line bg-paper-raised p-5">
         <label className="block text-sm">
           <span className="mb-1 block text-ink">Book</span>
-          <select name="book_id" value={bookId} onChange={(e) => chooseBook(e.target.value)} className={inputClass}>
+          <select
+            name="book_id"
+            value={bookId}
+            onChange={(e) => chooseBook(e.target.value)}
+            aria-invalid={!!errors.book_id}
+            className={inputClass + invalidClass(errors.book_id)}
+          >
             {books.map((b) => (
               <option key={b.id} value={b.id}>
                 {b.title}
@@ -70,6 +79,7 @@ export function LogForm({ books, preselected }: Props) {
               </option>
             ))}
           </select>
+          <FieldError message={errors.book_id} />
           <span className="mt-1 block text-ink-muted">
             Started a new book?{" "}
             <Link href="/books/new" className="text-accent underline">
@@ -87,8 +97,10 @@ export function LogForm({ books, preselected }: Props) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className={inputClass}
+              aria-invalid={!!errors.session_date}
+              className={inputClass + invalidClass(errors.session_date)}
             />
+            <FieldError message={errors.session_date} />
           </label>
           <label className="block text-sm">
             <span className="mb-1 block text-ink">From page</span>
@@ -98,8 +110,10 @@ export function LogForm({ books, preselected }: Props) {
               min={1}
               value={startPage}
               onChange={(e) => setStartPage(e.target.value)}
-              className={inputClass}
+              aria-invalid={!!errors.start_page}
+              className={inputClass + invalidClass(errors.start_page)}
             />
+            <FieldError message={errors.start_page} />
           </label>
           <label className="block text-sm">
             <span className="mb-1 block text-ink">To page</span>
@@ -109,13 +123,15 @@ export function LogForm({ books, preselected }: Props) {
               min={1}
               value={endPage}
               onChange={(e) => setEndPage(e.target.value)}
-              className={inputClass}
+              aria-invalid={!!errors.end_page}
+              className={inputClass + invalidClass(errors.end_page)}
             />
+            <FieldError message={errors.end_page} />
           </label>
         </div>
         <p className="text-sm text-ink-muted">
           {book && `You were on page ${book.currentPage}${book.totalPages ? ` of ${book.totalPages}` : ""}. `}
-          {startPage && endPage && pages > 0 && (
+          {startPage && endPage && pages > 0 && !pastLastPage && (
             <span className="text-accent">
               That&apos;s {pages} page{pages === 1 ? "" : "s"}
               {pages >= 10 ? ". Goal hit!" : "."}

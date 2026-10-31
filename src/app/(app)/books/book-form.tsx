@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { BookCover } from "@/components/book-cover";
+import { FieldError, invalidClass } from "@/components/field-error";
 import type { BookSuggestion } from "@/lib/openlibrary";
 import { lookupBooks, type BookFormState } from "./actions";
 
@@ -41,6 +42,7 @@ const inputClass =
 
 export function BookForm({ action, initial, submitLabel, cancelHref, showSearch = false }: Props) {
   const [state, formAction, saving] = useActionState(action, {});
+  const errors = state.fieldErrors ?? {};
   // Controlled fields so picking a search result can fill them in, and React's form reset can't wipe them
   const [fields, setFields] = useState<BookFields>({ ...EMPTY, ...initial });
   const set = (name: keyof BookFields) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -134,7 +136,14 @@ export function BookForm({ action, initial, submitLabel, cancelHref, showSearch 
         <form action={formAction} className="space-y-4" noValidate>
           <label className="block text-sm">
             <span className="mb-1 block text-ink">Title</span>
-            <input name="title" value={fields.title} onChange={set("title")} className={inputClass} />
+            <input
+              name="title"
+              value={fields.title}
+              onChange={set("title")}
+              aria-invalid={!!errors.title}
+              className={inputClass + invalidClass(errors.title)}
+            />
+            <FieldError message={errors.title} />
           </label>
           <label className="block text-sm">
             <span className="mb-1 block text-ink">Author</span>
@@ -148,8 +157,10 @@ export function BookForm({ action, initial, submitLabel, cancelHref, showSearch 
                 type="number"
                 value={fields.publication_year}
                 onChange={set("publication_year")}
-                className={inputClass}
+                aria-invalid={!!errors.publication_year}
+                className={inputClass + invalidClass(errors.publication_year)}
               />
+              <FieldError message={errors.publication_year} />
             </label>
             <label className="block text-sm">
               <span className="mb-1 block text-ink">Total pages</span>
@@ -158,8 +169,10 @@ export function BookForm({ action, initial, submitLabel, cancelHref, showSearch 
                 type="number"
                 value={fields.total_pages}
                 onChange={set("total_pages")}
-                className={inputClass}
+                aria-invalid={!!errors.total_pages}
+                className={inputClass + invalidClass(errors.total_pages)}
               />
+              <FieldError message={errors.total_pages} />
             </label>
           </div>
           <label className="block text-sm">

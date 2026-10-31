@@ -94,8 +94,15 @@ Every table has Row Level Security turned on. A logged-in user can only read or 
 - `books`, `reading_sessions` and `stars` rows where `user_id` is theirs,
 - `notes` on books they own (notes have no `user_id`, so ownership is checked through the book).
 
+## Database checks
+These back up the form validation, so bad data is refused even if a request skips the app:
+- `books.title` can't be blank, and `books.total_pages` must be above 0 when given.
+- `reading_sessions`: `start_page` ≥ 1 and `end_page` ≥ `start_page`.
+- `notes.content` can't be blank.
+- `books.status` and `notes.kind` must be one of their allowed values.
+
 ## Compared with PLAN.md section 3
 The tables and columns match the plan. What's different:
 - **Row Level Security** replaces "every query filters by `user_id`". The database itself now refuses to show one user's rows to another.
-- **`status` and `kind` are limited to fixed values** by a database check, which the plan didn't specify.
+- **`status` and `kind` are limited to fixed values**, and blank titles and impossible page ranges are refused, by database checks the plan didn't specify.
 - **Extra indexes** on the foreign keys, to keep look-ups fast.

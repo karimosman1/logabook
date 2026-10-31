@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { searchBooks, type BookSuggestion } from "@/lib/openlibrary";
 import { createClient } from "@/lib/supabase/server";
+import { hasErrors, validateBook, type FieldErrors } from "@/lib/validation";
 
-export type BookFormState = { error?: string };
+export type BookFormState = { error?: string; fieldErrors?: FieldErrors };
+
+const FIX_FIELDS = "Please fix the highlighted fields.";
 
 const STATUSES = ["reading", "finished", "want_to_read"];
 
@@ -43,8 +46,12 @@ export async function lookupBooks(query: string): Promise<{ results?: BookSugges
 }
 
 export async function createBook(_prev: BookFormState, formData: FormData): Promise<BookFormState> {
+  const book = readBook(formData);
+  const fieldErrors = validateBook(book);
+  if (hasErrors(fieldErrors)) return { error: FIX_FIELDS, fieldErrors };
+
   const supabase = await createClient();
-  const { data, error } = await supabase.from("books").insert(readBook(formData)).select("id").single();
+  const { data, error } = await supabase.from("books").insert(book).select("id").single();
   if (error) return { error: "Couldn't save the book. Please try again." };
 
   revalidatePath("/books");
@@ -52,8 +59,12 @@ export async function createBook(_prev: BookFormState, formData: FormData): Prom
 }
 
 export async function updateBook(id: string, _prev: BookFormState, formData: FormData): Promise<BookFormState> {
+  const book = readBook(formData);
+  const fieldErrors = validateBook(book);
+  if (hasErrors(fieldErrors)) return { error: FIX_FIELDS, fieldErrors };
+
   const supabase = await createClient();
-  const { error } = await supabase.from("books").update(readBook(formData)).eq("id", id);
+  const { error } = await supabase.from("books").update(book).eq("id", id);
   if (error) return { error: "Couldn't save your changes. Please try again." };
 
   revalidatePath("/books");
