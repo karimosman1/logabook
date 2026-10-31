@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export type AuthState = { error?: string; message?: string };
+// `email` is sent back so the form can refill it: React clears forms after an action runs
+export type AuthState = { error?: string; message?: string; email?: string };
 
 function readCredentials(formData: FormData) {
   return {
@@ -17,8 +18,8 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const { email, password } = readCredentials(formData);
   const displayName = String(formData.get("display_name") ?? "").trim();
 
-  if (!email || !password) return { error: "Please enter an email and a password." };
-  if (password.length < 6) return { error: "Your password needs at least 6 characters." };
+  if (!email || !password) return { error: "Please enter an email and a password.", email };
+  if (password.length < 6) return { error: "Your password needs at least 6 characters.", email };
 
   const origin = (await headers()).get("origin") ?? "";
   const supabase = await createClient();
@@ -31,7 +32,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
     },
   });
 
-  if (error) return { error: error.message };
+  if (error) return { error: error.message, email };
 
   // With email confirmation on, Supabase creates the account but no session yet
   if (!data.session) {
@@ -43,16 +44,16 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
 
 export async function login(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const { email, password } = readCredentials(formData);
-  if (!email || !password) return { error: "Please enter your email and password." };
+  if (!email || !password) return { error: "Please enter your email and password.", email };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     if (error.code === "email_not_confirmed") {
-      return { error: "Please confirm your email first. Check your inbox for the link." };
+      return { error: "Please confirm your email first. Check your inbox for the link.", email };
     }
-    return { error: "That email and password don't match an account." };
+    return { error: "That email and password don't match an account.", email };
   }
 
   redirect("/");

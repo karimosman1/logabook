@@ -33,7 +33,14 @@ export function AuthForm({ mode, action }: Props) {
           )}
           <label className="block text-sm">
             <span className="mb-1 block text-ink">Email</span>
-            <input name="email" type="email" autoComplete="email" required className={inputClass} />
+            <input
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              defaultValue={state.email}
+              className={inputClass}
+            />
           </label>
           <label className="block text-sm">
             <span className="mb-1 block text-ink">Password</span>
