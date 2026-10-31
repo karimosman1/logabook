@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookCover } from "@/components/book-cover";
+import { StarButton } from "@/components/star-button";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteBookButton } from "./delete-button";
 
@@ -25,7 +26,7 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
   const { data: book } = await supabase.from("books").select("*").eq("id", id).maybeSingle();
   if (!book) notFound();
 
-  const [{ data: sessions }, { data: notes }] = await Promise.all([
+  const [{ data: sessions }, { data: notes }, { data: star }] = await Promise.all([
     supabase
       .from("reading_sessions")
       .select("id, session_date, start_page, end_page, pages_read")
@@ -37,6 +38,7 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
       .select("id, kind, content, page_number, created_at")
       .eq("book_id", id)
       .order("created_at", { ascending: false }),
+    supabase.from("stars").select("book_id").eq("book_id", id).maybeSingle(),
   ]);
 
   const currentPage = Math.max(0, ...(sessions ?? []).map((s) => s.end_page ?? 0));
@@ -55,7 +57,10 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
 
         <div>
           <p className="text-xs uppercase tracking-wide text-accent">{STATUS_LABEL[book.status]}</p>
-          <h1 className="mt-1 font-serif text-4xl text-ink">{book.title}</h1>
+          <div className="mt-1 flex items-start gap-3">
+            <h1 className="font-serif text-4xl text-ink">{book.title}</h1>
+            <StarButton bookId={book.id} title={book.title} starred={!!star} className="mt-1 shrink-0 border border-line" />
+          </div>
           {book.author && <p className="mt-1 text-lg text-ink-muted">{book.author}</p>}
 
           <dl className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
