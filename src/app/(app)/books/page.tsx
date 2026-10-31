@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { BookCover } from "@/components/book-cover";
 import { StarButton } from "@/components/star-button";
 import { createClient } from "@/lib/supabase/server";
 import { LibraryFilters } from "./library-filters";
+import { Recommendations, RecommendationsLoading } from "./recommendations";
 
 export const metadata = { title: "Library · Logabook" };
 
@@ -31,7 +33,9 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
 
   const supabase = await createClient();
 
-  let query = supabase.from("books").select("id, title, author, publication_year, cover_url, status, last_read_at");
+  let query = supabase
+    .from("books")
+    .select("id, title, author, publication_year, genre, cover_url, status, last_read_at");
   if (q) query = query.or(`title.ilike.%${q}%,author.ilike.%${q}%`);
   if (params.status) query = query.eq("status", params.status);
   if (params.genre) query = query.eq("genre", params.genre);
@@ -51,6 +55,11 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   const starredIds = new Set((stars ?? []).map((s) => s.book_id));
   const books = starredOnly ? (allBooks ?? []).filter((b) => starredIds.has(b.id)) : allBooks;
   const genres = [...new Set((genreRows ?? []).map((r) => r.genre!))].sort();
+
+  // Recommendations are based on what you're reading now (or your most recent books if nothing is in progress)
+  const showRecommendations = !starredOnly && !filtering && !!allBooks?.length;
+  const reading = (allBooks ?? []).filter((b) => b.status === "reading");
+  const seeds = (reading.length ? reading : (allBooks ?? [])).slice(0, 3);
 
   // Keep search, filters and sort when switching between All and Starred
   const withView = (view?: string) => {
@@ -124,6 +133,18 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
             </li>
           ))}
         </ul>
+      )}
+
+      {showRecommendations && (
+        <section className="mt-14 border-t border-line pt-8">
+          <h2 className="font-serif text-2xl text-ink">You might like</h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            Based on {seeds.map((b) => b.title).join(", ")}.
+          </p>
+          <Suspense fallback={<RecommendationsLoading />}>
+            <Recommendations seeds={seeds} ownedTitles={(allBooks ?? []).map((b) => b.title)} />
+          </Suspense>
+        </section>
       )}
     </>
   );
