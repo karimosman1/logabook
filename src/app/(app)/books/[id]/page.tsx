@@ -26,7 +26,12 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
   if (!book) notFound();
 
   const [{ data: sessions }, { data: notes }] = await Promise.all([
-    supabase.from("reading_sessions").select("end_page").eq("book_id", id),
+    supabase
+      .from("reading_sessions")
+      .select("id, session_date, start_page, end_page, pages_read")
+      .eq("book_id", id)
+      .order("session_date", { ascending: false })
+      .order("created_at", { ascending: false }),
     supabase
       .from("notes")
       .select("id, kind, content, page_number, created_at")
@@ -83,6 +88,12 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
 
           <div className="mt-6 flex items-start gap-3">
             <Link
+              href={`/log?book=${book.id}`}
+              className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent/90"
+            >
+              Log reading
+            </Link>
+            <Link
               href={`/books/${book.id}/edit`}
               className="rounded-md border border-line px-3 py-1.5 text-sm text-ink hover:bg-paper-raised"
             >
@@ -92,6 +103,27 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
       </div>
+
+      <section className="mt-10">
+        <h2 className="font-serif text-2xl text-ink">Reading log</h2>
+        {!sessions?.length ? (
+          <p className="mt-2 text-sm text-ink-muted">No reading sessions yet.</p>
+        ) : (
+          <ul className="mt-4 divide-y divide-line rounded-lg border border-line bg-paper-raised">
+            {sessions.map((s) => (
+              <li key={s.id} className="flex items-center justify-between px-4 py-3 text-sm">
+                <span className="text-ink">{s.session_date}</span>
+                <span className="text-ink-muted">
+                  {s.start_page != null && s.end_page != null ? `Pages ${s.start_page}–${s.end_page}` : "Pages not recorded"}
+                </span>
+                <span className={s.pages_read != null && s.pages_read >= 10 ? "text-accent" : "text-ink-muted"}>
+                  {s.pages_read ?? "—"} pages
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="mt-10">
         <h2 className="font-serif text-2xl text-ink">Notes &amp; quotes</h2>
