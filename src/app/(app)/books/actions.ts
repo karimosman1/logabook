@@ -79,3 +79,16 @@ export async function deleteBook(id: string) {
   revalidatePath("/books");
   redirect("/books");
 }
+
+// One row in `stars` per user + book; Row Level Security fills in and checks the user
+export async function setStarred(bookId: string, starred: boolean) {
+  const supabase = await createClient();
+  if (starred) {
+    await supabase.from("stars").upsert({ book_id: bookId }, { onConflict: "user_id,book_id", ignoreDuplicates: true });
+  } else {
+    await supabase.from("stars").delete().eq("book_id", bookId);
+  }
+
+  revalidatePath("/books");
+  revalidatePath(`/books/${bookId}`);
+}
