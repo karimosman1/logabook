@@ -30,8 +30,24 @@ export function coverUrl(coverId: number) {
 }
 
 export async function searchBooks(query: string): Promise<BookSuggestion[]> {
-  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&fields=${FIELDS}&limit=8`;
-  const res = await fetch(url, { headers: { "User-Agent": "Logabook (student project)" } });
+  return search(`q=${encodeURIComponent(query)}&limit=8`);
+}
+
+// Top-rated books by an author or in a subject, for recommendations. Cached for a day.
+export async function booksByAuthor(author: string, limit = 8) {
+  return search(`author=${encodeURIComponent(author)}&sort=rating&limit=${limit}`, 86400);
+}
+
+export async function booksBySubject(subject: string, limit = 8) {
+  return search(`subject=${encodeURIComponent(subject)}&sort=rating&limit=${limit}`, 86400);
+}
+
+async function search(params: string, revalidate?: number): Promise<BookSuggestion[]> {
+  const url = `https://openlibrary.org/search.json?${params}&fields=${FIELDS}`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Logabook (student project)" },
+    ...(revalidate ? { next: { revalidate } } : {}),
+  });
   if (!res.ok) throw new Error(`Open Library search failed (${res.status})`);
 
   const { docs } = (await res.json()) as { docs: SearchDoc[] };

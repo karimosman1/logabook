@@ -92,3 +92,22 @@ export async function setStarred(bookId: string, starred: boolean) {
   revalidatePath("/books");
   revalidatePath(`/books/${bookId}`);
 }
+
+// One-click add from the "You might like" section
+export async function addToWantToRead(book: BookSuggestion): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("books").insert({
+    title: book.title,
+    author: book.author,
+    publication_year: book.publication_year,
+    genre: book.genre,
+    total_pages: book.total_pages,
+    cover_url: book.cover_url,
+    isbn: book.isbn,
+    status: "want_to_read",
+  });
+  if (error) return { error: "Couldn't add that book. Please try again." };
+
+  revalidatePath("/books");
+  return {};
+}
