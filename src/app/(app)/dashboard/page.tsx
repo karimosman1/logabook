@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { summarize, weeklyPages } from "@/lib/stats";
+import { streaks, summarize, weeklyPages } from "@/lib/stats";
 import { WeeklyChart } from "./weekly-chart";
 
 export const metadata = { title: "Dashboard · Logabook" };
@@ -18,7 +18,9 @@ export default async function DashboardPage() {
 
   const goal = profile?.daily_page_goal ?? 10;
   const stats = summarize(sessions ?? [], books ?? [], goal);
-  const weeks = weeklyPages(sessions ?? [], new Date().toISOString().slice(0, 10));
+  const today = new Date().toISOString().slice(0, 10);
+  const weeks = weeklyPages(sessions ?? [], today);
+  const streak = streaks(sessions ?? [], today, goal);
   const pagesThisWeek = weeks[weeks.length - 1].pages;
 
   const tiles = [
@@ -36,7 +38,8 @@ export default async function DashboardPage() {
     <>
       <h1 className="font-serif text-3xl text-ink">Dashboard</h1>
       <p className="mt-1 text-sm text-ink-muted">
-        {stats.totalPages} pages across {stats.readingDays} reading day{stats.readingDays === 1 ? "" : "s"}.
+        {stats.totalPages} pages across {stats.readingDays} reading day{stats.readingDays === 1 ? "" : "s"} · current
+        streak {streak.current}, longest {streak.longest}.
       </p>
 
       <dl className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">

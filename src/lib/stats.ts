@@ -51,6 +51,31 @@ export function summarize(sessions: SessionRow[], books: BookRow[], dailyGoal = 
   };
 }
 
+// Streaks of consecutive days where the goal was hit. If today isn't hit yet, the current
+// streak still counts up to yesterday: the chain only breaks once a day has fully passed.
+export function streaks(sessions: SessionRow[], today: string, dailyGoal = 10) {
+  const goalDays = new Set(
+    [...pagesPerDay(sessions)].filter(([, pages]) => pages >= dailyGoal).map(([date]) => date),
+  );
+
+  let current = 0;
+  let day = goalDays.has(today) ? today : addDays(today, -1);
+  while (goalDays.has(day)) {
+    current++;
+    day = addDays(day, -1);
+  }
+
+  let longest = 0;
+  for (const date of goalDays) {
+    if (goalDays.has(addDays(date, -1))) continue; // only count from the first day of each run
+    let length = 1;
+    while (goalDays.has(addDays(date, length))) length++;
+    longest = Math.max(longest, length);
+  }
+
+  return { current, longest, hitToday: goalDays.has(today) };
+}
+
 // Pages per week (weeks start Monday) for the last `weeks` weeks, oldest first
 export function weeklyPages(sessions: SessionRow[], today: string, weeks = 8) {
   const thisMonday = mondayOf(today);
