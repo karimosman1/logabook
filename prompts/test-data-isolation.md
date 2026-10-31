@@ -5,6 +5,10 @@
 
 > i created the two test accounts and filled in the env file
 
+> Yes, add it  (the temporary rule for the red screenshot)
+
+> Red done, remove it
+
 ## What the agent built
 - **`tests/data-isolation.test.ts`:** the isolation test from PLAN.md section 4. It talks to the real Supabase project, signed in as two real accounts, like two people using the app.
   - **Given:** User A adds the book "Dune". User B has an empty account.
@@ -14,7 +18,7 @@
   - **Afterwards, User A deletes the test's Dune,** so runs don't pile up books.
 - **`vitest.config.mts`:** loads the Supabase settings from `.env.local` and the test accounts from `.env.test.local`.
 - **The test accounts' passwords live only in `.env.test.local`,** which git ignores. `.env.example` lists the names of the settings, with no values.
-- **Karim created the two test accounts himself** on the live site. The agent doesn't create accounts or handle passwords on a live site.
+- **Karim created the two test accounts** on the live site. The agent doesn't create accounts or handle passwords on a live site.
 
 ## Red, then green
 - **Red:** the agent temporarily added a database rule letting any logged-in user see every book. Both "User B" checks failed. Then the rule was removed.
