@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* "Paper and ink" palette from PLAN.md section 6 */
+:root {
+  --paper: #faf7f0;
+  --paper-raised: #ffffff;
+  --ink: #2b2a28;
+  --ink-muted: #6b675f;
+  --line: #e4ddcf;
+  --accent: #2f6b4f;
+  --partial: #e0b341;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-partial: var(--partial);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-lora);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
