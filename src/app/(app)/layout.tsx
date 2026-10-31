@@ -15,6 +15,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href="/log" className="text-sm text-ink-muted hover:text-ink">
             Log reading
           </Link>
+          <Link href="/dashboard" className="text-sm text-ink-muted hover:text-ink">
+            Dashboard
+          </Link>
           <div className="ml-auto flex items-center gap-3">
             <Link
               href="/books/new"
