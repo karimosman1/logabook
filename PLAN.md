@@ -62,3 +62,26 @@ A warm, cosy "paper and ink" look: cream background (#FAF7F0), dark ink text (#2
 - **Cut first:** recommendations. Then I'd simplify the streak to "current streak" only.
 - **Other risk:** Open Library may not have a cover or page count for every book, so manual entry has to work as a fallback.
 
+
+---
+
+## Plan vs. Reality
+*Added after building. Everything above this line is the original plan, unchanged.*
+
+| Planned feature | Shipped / Changed / Cut | Status | Learning: what changed and why |
+|---|---|---|---|
+| 1. Sign up & login | Changed | Done | Privacy comes from Row Level Security in the database, not "every query filters by `user_id`", because Supabase exposes every table through its API. Email confirmation had to be turned off so strangers can sign up. |
+| 2. Data model | Changed | Done | All 5 tables were built as planned, plus database checks and indexes the plan didn't mention. Storing `created_at` as a date (no time) means sessions logged on the same day can't be put in order. |
+| 3. Book library CRUD | Changed | Done | Open Library returns a mixed list of "subjects" (places, characters, themes), not a genre, so the single `genre` column often gets junk like *Dune (Imaginary place)* and has to be fixed by hand. |
+| 4. Log a reading session | Changed | Done | Starting a new book takes two steps (add the book, then log), not one combined form. The date comes from the browser so late-night reading lands on the right day. |
+| 5. Validation | Shipped | Done | Built as planned, but checks live in three places (shared rules, forms, database), not just friendly messages. |
+| 6. Stars | Shipped | Done | The `stars` junction table worked exactly as designed. The "Starred" view became a tab on the library instead of its own page. |
+| 7. Find things | Shipped | Done | Search, filter and sort work as planned. The genre filter inherits the messy genre data from feature 3. |
+| 8. Dashboard | Shipped | Done | The plan didn't say whether "average pages per day" counts every day or only reading days. I went with reading days, which matches the test. |
+| 9. Calendar view | Changed | Done | Days use colour plus a symbol (✓ / •) instead of a pattern. "Today" uses the server's UTC clock, so late at night in California it can be a day ahead. |
+| 10. Streak counter | Shipped | Done | The plan never defined when a streak breaks. It only breaks once a whole day is missed, so it doesn't show 0 every morning before you read. |
+| 11. Recommendations | Changed | Done | Same-author suggestions are good, but same-genre ones are weak (*Watchmen* under "Science fiction") because of the single genre column. The feature I was least sure about shipped, but its weak spot was the data, not the code. |
+| Test: data isolation | Changed | Done | It has to sign in to the real database as two test accounts, because the protection lives in database rules, not app code. Needed a retry for a network stall. |
+| Test: dashboard stat | Shipped | Done | Matches the Given / When / Then exactly. |
+| Libraries | Changed | Done | date-fns was never needed; plain date functions covered the calendar and streaks. |
+| Timezones (missing from the plan) | Cut | Backlogged | The plan ignored timezones, and so did most of the build. Only the log form uses the reader's local date. |
