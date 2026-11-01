@@ -106,3 +106,8 @@ The tables and columns match the plan. What's different:
 - **Row Level Security** replaces "every query filters by `user_id`". The database itself now refuses to show one user's rows to another.
 - **`status` and `kind` are limited to fixed values**, and blank titles and impossible page ranges are refused, by database checks the plan didn't specify.
 - **Extra indexes** on the foreign keys, to keep look-ups fast.
+
+Things in the plan's design that turned out to be weak (kept as they are, see the Plan vs. Reality table in [PLAN.md](PLAN.md)):
+- **`books.genre` is a single text column.** Open Library gives a list of mixed "subjects", not one genre, so the app keeps only the first one, which is often not a genre. This weakens the genre filter and genre-based recommendations.
+- **Every `created_at` is a date, not a date and time.** Two sessions logged on the same day can't be put in the order they were logged.
+- **`reading_sessions.pages_read` repeats information** that `start_page` and `end_page` already give. The app fills it in when a session is logged, so it can only drift if a row is changed some other way.
