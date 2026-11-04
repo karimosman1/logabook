@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { Logo } from "@/components/logo";
 import type { AuthState } from "./actions";
 
 type Props = {
@@ -19,7 +20,9 @@ export function AuthForm({ mode, action }: Props) {
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-xl border border-line bg-paper-raised p-8 shadow-sm">
-        <h1 className="font-serif text-3xl text-ink">Logabook</h1>
+        <h1>
+          <Logo />
+        </h1>
         <p className="mt-1 text-sm text-ink-muted">
           {isSignup ? "Create your reading log." : "Welcome back. Log in to your shelf."}
         </p>

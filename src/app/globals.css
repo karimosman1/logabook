@@ -23,8 +23,14 @@
   --font-serif: var(--font-lora);
 }
 
+/* A warm wash of green and mustard at the top, over a faint pattern of tiny open books and dots */
 body {
-  background: var(--paper);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 15% -10%, rgb(47 107 79 / 0.1), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 95% 0%, rgb(224 179 65 / 0.12), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='%232f6b4f' stroke-opacity='0.09' stroke-width='1.2' stroke-linejoin='round'%3E%3Cpath d='M10 16c3-1.4 6-1.2 8.5.7v9c-2.5-1.9-5.5-2.1-8.5-.7zM27 16c-3-1.4-6-1.2-8.5.7v9c2.5-1.9 5.5-2.1 8.5-.7z'/%3E%3Cpath d='M46 52c3-1.4 6-1.2 8.5.7v9c-2.5-1.9-5.5-2.1-8.5-.7zM63 52c-3-1.4-6-1.2-8.5.7v9c2.5-1.9 5.5-2.1 8.5-.7z'/%3E%3C/g%3E%3Cg fill='%23e0b341' fill-opacity='0.22'%3E%3Ccircle cx='54' cy='18' r='1.6'/%3E%3Ccircle cx='18' cy='56' r='1.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-inter), system-ui, sans-serif;
 }
