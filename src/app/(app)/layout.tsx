@@ -1,13 +1,14 @@
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 import { logout } from "../(auth)/actions";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
-      <header className="border-b border-line bg-paper-raised">
+      <header className="sticky top-0 z-10 border-t-4 border-t-accent border-b border-line bg-paper-raised/85 backdrop-blur">
         <nav className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <Link href="/" className="font-serif text-2xl text-ink">
-            Logabook
+          <Link href="/" aria-label="Logabook home">
+            <Logo />
           </Link>
           <Link href="/" className="text-sm text-ink-muted hover:text-ink">
             Calendar
