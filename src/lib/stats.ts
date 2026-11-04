@@ -1,5 +1,7 @@
 // Reading stats for the dashboard. Plain functions over plain rows, so they're easy to test.
 
+import { addDays } from "./dates";
+
 export type SessionRow = { session_date: string; pages_read: number | null };
 export type BookRow = { status: string };
 
@@ -95,12 +97,6 @@ function mondayOf(isoDate: string) {
   const d = new Date(`${isoDate}T00:00:00Z`);
   const offset = (d.getUTCDay() + 6) % 7; // Monday = 0
   return addDays(isoDate, -offset);
-}
-
-function addDays(isoDate: string, n: number) {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + n);
-  return d.toISOString().slice(0, 10);
 }
 
 function shortDate(isoDate: string) {

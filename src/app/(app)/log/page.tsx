@@ -1,3 +1,4 @@
+import { today } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/server";
 import { LogForm } from "./log-form";
 
@@ -34,7 +35,7 @@ export default async function LogPage({ searchParams }: { searchParams: Promise<
     <>
       <h1 className="font-serif text-3xl text-ink">Log reading</h1>
       <p className="mt-1 text-sm text-ink-muted">Record the pages you read, plus any quotes or notes.</p>
-      <LogForm books={options} preselected={preselected} />
+      <LogForm books={options} preselected={preselected} today={today()} />
     </>
   );
 }
