@@ -1,6 +1,8 @@
 // Form rules shared by the server actions. Each returns friendly messages keyed by field name;
 // an empty object means the input is fine.
 
+import { BACKDATE_DAYS, earliestLogDate } from "./dates";
+
 export type FieldErrors = Partial<Record<string, string>>;
 
 export function hasErrors(errors: FieldErrors) {
@@ -46,8 +48,10 @@ export function validateSession(session: SessionInput, today: string): FieldErro
   if (!session.bookId) errors.book_id = "Please choose which book you read.";
 
   if (!session.sessionDate) errors.session_date = "Please pick the day you read.";
-  // Allow one day ahead: the reader's local "today" can be the server's tomorrow
-  else if (session.sessionDate > nextDay(today)) errors.session_date = "That date is in the future.";
+  else if (session.sessionDate > today) errors.session_date = "That date is in the future.";
+  else if (session.sessionDate < earliestLogDate(today)) {
+    errors.session_date = `You can only log reading from the last ${BACKDATE_DAYS} days.`;
+  }
 
   if (startPage === null) errors.start_page = "Enter the page you started on.";
   else if (!Number.isInteger(startPage) || startPage < 1) errors.start_page = "Pages start at 1.";
@@ -61,10 +65,4 @@ export function validateSession(session: SessionInput, today: string): FieldErro
   }
 
   return errors;
-}
-
-function nextDay(isoDate: string) {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
 }

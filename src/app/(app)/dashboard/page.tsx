@@ -1,3 +1,4 @@
+import { today as todayInPacific } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/server";
 import { streaks, summarize, weeklyPages } from "@/lib/stats";
 import { WeeklyChart } from "./weekly-chart";
@@ -18,7 +19,7 @@ export default async function DashboardPage() {
 
   const goal = profile?.daily_page_goal ?? 10;
   const stats = summarize(sessions ?? [], books ?? [], goal);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInPacific();
   const weeks = weeklyPages(sessions ?? [], today);
   const streak = streaks(sessions ?? [], today, goal);
   const pagesThisWeek = weeks[weeks.length - 1].pages;

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { today } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/server";
 import { hasErrors, validateSession, type FieldErrors } from "@/lib/validation";
 
@@ -26,7 +27,7 @@ export async function logSession(_prev: LogFormState, formData: FormData): Promi
 
   const fieldErrors = validateSession(
     { bookId: book ? bookId : "", sessionDate, startPage, endPage, totalPages: book?.total_pages ?? null },
-    new Date().toISOString().slice(0, 10),
+    today(),
   );
   if (hasErrors(fieldErrors)) return { error: "Please fix the highlighted fields.", fieldErrors };
 

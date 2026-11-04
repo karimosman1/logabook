@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { dayStatus, monthGrid, monthLabel, shiftMonth, type DayStatus } from "@/lib/calendar";
+import { today as todayInPacific } from "@/lib/dates";
 import { pagesPerDay, streaks } from "@/lib/stats";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,7 +17,7 @@ const STYLE: Record<DayStatus, { cell: string; mark: string; label: string }> = 
 };
 
 export default async function CalendarPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInPacific();
   const { month: requested } = await searchParams;
   const month = requested && /^\d{4}-\d{2}$/.test(requested) ? requested : today.slice(0, 7);
 

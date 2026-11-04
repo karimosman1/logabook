@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { FieldError, invalidClass } from "@/components/field-error";
+import { BACKDATE_DAYS, earliestLogDate } from "@/lib/dates";
 import { logSession } from "./actions";
 
 type BookOption = {
@@ -13,30 +14,22 @@ type BookOption = {
   currentPage: number;
 };
 
-type Props = { books: BookOption[]; preselected?: string };
+type Props = { books: BookOption[]; preselected?: string; today: string };
 
 const inputClass =
   "w-full rounded-md border border-line bg-white px-3 py-2 text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/20";
 
-// Today's date in the reader's own timezone, as YYYY-MM-DD
-function localToday() {
-  return new Date().toLocaleDateString("en-CA");
-}
-
-export function LogForm({ books, preselected }: Props) {
+export function LogForm({ books, preselected, today }: Props) {
   const [state, formAction, saving] = useActionState(logSession, {});
   const errors = state.fieldErrors ?? {};
 
   const initialBook = books.find((b) => b.id === preselected) ?? books[0];
   const [bookId, setBookId] = useState(initialBook?.id ?? "");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(today);
   const [startPage, setStartPage] = useState(initialBook ? String(initialBook.currentPage + 1) : "");
   const [endPage, setEndPage] = useState("");
   const [quotes, setQuotes] = useState<{ content: string; page: string }[]>([]);
   const [notes, setNotes] = useState<string[]>([""]);
-
-  // Set the date after the page loads so it uses the reader's clock, not the server's
-  useEffect(() => setDate(localToday()), []);
 
   const book = books.find((b) => b.id === bookId);
 
@@ -95,12 +88,17 @@ export function LogForm({ books, preselected }: Props) {
             <input
               name="session_date"
               type="date"
+              min={earliestLogDate(today)}
+              max={today}
               value={date}
               onChange={(e) => setDate(e.target.value)}
               aria-invalid={!!errors.session_date}
               className={inputClass + invalidClass(errors.session_date)}
             />
             <FieldError message={errors.session_date} />
+            {!errors.session_date && (
+              <span className="mt-1 block text-ink-muted">Forgot a day? Up to {BACKDATE_DAYS} days back.</span>
+            )}
           </label>
           <label className="block text-sm">
             <span className="mb-1 block text-ink">From page</span>
