@@ -26,6 +26,7 @@ export type Database = {
           isbn: string | null
           last_read_at: string | null
           publication_year: number | null
+          rating: number | null
           status: string
           title: string
           total_pages: number | null
@@ -40,6 +41,7 @@ export type Database = {
           isbn?: string | null
           last_read_at?: string | null
           publication_year?: number | null
+          rating?: number | null
           status?: string
           title: string
           total_pages?: number | null
@@ -54,6 +56,7 @@ export type Database = {
           isbn?: string | null
           last_read_at?: string | null
           publication_year?: number | null
+          rating?: number | null
           status?: string
           title?: string
           total_pages?: number | null

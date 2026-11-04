@@ -72,6 +72,7 @@ export function LibraryFilters({ genres }: { genres: string[] }) {
         <option value="title">Title (A–Z)</option>
         <option value="year">Year published (newest)</option>
         <option value="added">Recently added</option>
+        <option value="rating">Highest rated</option>
       </select>
     </div>
   );

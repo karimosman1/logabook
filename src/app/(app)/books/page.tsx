@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { BookCover } from "@/components/book-cover";
+import { RatingStars } from "@/components/rating-input";
 import { StarButton } from "@/components/star-button";
 import { createClient } from "@/lib/supabase/server";
 import { LibraryFilters } from "./library-filters";
@@ -19,6 +20,7 @@ const SORT_LABEL: Record<string, string> = {
   title: "Sorted by title, A–Z.",
   year: "Newest publications first.",
   added: "Most recently added first.",
+  rating: "Highest rated first.",
 };
 
 type SearchParams = { view?: string; q?: string; status?: string; genre?: string; sort?: string };
@@ -35,7 +37,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
 
   let query = supabase
     .from("books")
-    .select("id, title, author, publication_year, genre, cover_url, status, last_read_at");
+    .select("id, title, author, publication_year, genre, cover_url, status, last_read_at, rating");
   if (q) query = query.or(`title.ilike.%${q}%,author.ilike.%${q}%`);
   if (params.status) query = query.eq("status", params.status);
   if (params.genre) query = query.eq("genre", params.genre);
@@ -43,6 +45,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   if (sort === "title") query = query.order("title", { ascending: true });
   else if (sort === "year") query = query.order("publication_year", { ascending: false, nullsFirst: false });
   else if (sort === "added") query = query.order("created_at", { ascending: false });
+  else if (sort === "rating") query = query.order("rating", { ascending: false, nullsFirst: false });
   else query = query.order("last_read_at", { ascending: false, nullsFirst: false });
   query = query.order("created_at", { ascending: false });
 
@@ -128,7 +131,10 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
                 <p className="text-sm text-ink-muted">
                   {[book.author, book.publication_year].filter(Boolean).join(" · ")}
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-wide text-accent">{STATUS_LABEL[book.status]}</p>
+                <p className="mt-1 flex items-center justify-between gap-2">
+                  <span className="text-xs uppercase tracking-wide text-accent">{STATUS_LABEL[book.status]}</span>
+                  {book.rating && <RatingStars rating={book.rating} />}
+                </p>
               </Link>
             </li>
           ))}
