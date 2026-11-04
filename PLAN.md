@@ -85,3 +85,7 @@ A warm, cosy "paper and ink" look: cream background (#FAF7F0), dark ink text (#2
 | Test: dashboard stat | Shipped | Done | Matches the Given / When / Then exactly. |
 | Libraries | Changed | Done | date-fns was never needed; plain date functions covered the calendar and streaks. |
 | Timezones (missing from the plan) | Changed | Done | The plan ignored timezones, and most of the build used UTC. I added Pacific time (PST/PDT) at the end because most users are there. Readers in other time zones would see the day change at the wrong hour. |
+| Edit or delete a reading session (missing from the plan) | Changed | Done | The plan's CRUD covered books only, so a typo in a session stayed in the stats. A stranger got stuck on it straight away, and it was the first thing I fixed. |
+| 6. Design: look and feel | Changed | Done | The "paper and ink" colours alone looked bland to a stranger. I added a logo, a tab icon and a faint book pattern in the background. |
+| Book ratings out of 5 (missing from the plan) | Shipped | Done | A stranger asked for ratings. They live on the book row (1–5), with a "Highest rated" sort. Two kinds of stars (favourite and rating) might confuse people. |
+| Friends: see what friends read and rate (missing from the plan) | Cut | Backlogged | It changes the privacy rules on every table, from "only mine" to "mine plus my accepted friends'", and needs friend requests and a feed. Too big for this iteration. |
