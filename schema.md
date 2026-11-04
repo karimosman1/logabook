@@ -39,6 +39,7 @@ A book on a user's shelf.
 | `isbn` | text | |
 | `status` | text | `reading`, `finished` or `want_to_read` (default `reading`) |
 | `last_read_at` | date | used to sort the library by the most recently read book |
+| `rating` | integer | how much the reader liked the book, 1 to 5; empty until rated (added after the plan, in `0004_book_rating.sql`) |
 | `created_at` | date | defaults to today |
 
 ### reading_sessions
@@ -99,6 +100,7 @@ These back up the form validation, so bad data is refused even if a request skip
 - `books.title` can't be blank, and `books.total_pages` must be above 0 when given.
 - `reading_sessions`: `start_page` ≥ 1 and `end_page` ≥ `start_page`.
 - `notes.content` can't be blank.
+- `books.rating` must be between 1 and 5 when given.
 - `books.status` and `notes.kind` must be one of their allowed values.
 
 ## Compared with PLAN.md section 3

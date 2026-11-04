@@ -80,6 +80,16 @@ export async function deleteBook(id: string) {
   redirect("/books");
 }
 
+// A rating from 1 to 5, or null to clear it. The database refuses anything else.
+export async function setRating(bookId: string, rating: number | null) {
+  if (rating !== null && !(Number.isInteger(rating) && rating >= 1 && rating <= 5)) return;
+  const supabase = await createClient();
+  await supabase.from("books").update({ rating }).eq("id", bookId);
+
+  revalidatePath("/books");
+  revalidatePath(`/books/${bookId}`);
+}
+
 // One row in `stars` per user + book; Row Level Security fills in and checks the user
 export async function setStarred(bookId: string, starred: boolean) {
   const supabase = await createClient();
