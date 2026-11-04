@@ -6,12 +6,12 @@ A personal reading library and daily reading log. Keep your books as a shelf of 
 
 ## What it does
 - **Accounts:** sign up, log in and log out. Each reader only ever sees their own books.
-- **Calendar (home page):** a month view where days you hit your 10-page goal are green with ✓, days you read less are yellow with •, and days with no reading are grey.
+- **Calendar (home page):** a month view (in Pacific time) where days you hit your 10-page goal are green with ✓, days you read less are yellow with •, and days with no reading are grey.
 - **Streaks:** your current and longest run of goal days.
 - **Library:** your books as a grid of covers, most recently read first. Search by title or author, filter by status or genre, sort by last read, title or year, and switch to your **Starred** books.
 - **Add a book:** search Open Library to fill in the cover, author, year, genre and page count, or type them in.
 - **Book page:** your current page and progress, every reading session, and all your notes and quotes. Edit or delete the book (with an "are you sure?" step).
-- **Log reading:** pick a book, enter the pages you read, and add any quotes and notes.
+- **Log reading:** pick a book, enter the pages you read, and add any quotes and notes. Forgot a day? You can log up to 7 days back, and it still counts toward your streak.
 - **Dashboard:** a bar chart of pages read per week, plus total pages, average pages per reading day, days goal hit, books finished and best month.
 - **You might like:** book suggestions from Open Library based on the authors and genres you're reading, with one click to add them as "Want to read".
 
