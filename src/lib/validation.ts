@@ -41,16 +41,20 @@ type SessionInput = {
   totalPages: number | null;
 };
 
-export function validateSession(session: SessionInput, today: string): FieldErrors {
+// `keepDate` is the date a session already had when editing it: keeping it is always fine,
+// even if it's older than the backdating window.
+export function validateSession(session: SessionInput, today: string, keepDate?: string): FieldErrors {
   const errors: FieldErrors = {};
   const { startPage, endPage, totalPages } = session;
 
   if (!session.bookId) errors.book_id = "Please choose which book you read.";
 
   if (!session.sessionDate) errors.session_date = "Please pick the day you read.";
-  else if (session.sessionDate > today) errors.session_date = "That date is in the future.";
-  else if (session.sessionDate < earliestLogDate(today)) {
-    errors.session_date = `You can only log reading from the last ${BACKDATE_DAYS} days.`;
+  else if (session.sessionDate !== keepDate) {
+    if (session.sessionDate > today) errors.session_date = "That date is in the future.";
+    else if (session.sessionDate < earliestLogDate(today)) {
+      errors.session_date = `You can only log reading from the last ${BACKDATE_DAYS} days.`;
+    }
   }
 
   if (startPage === null) errors.start_page = "Enter the page you started on.";

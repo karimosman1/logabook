@@ -121,8 +121,17 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
                 <span className="text-ink-muted">
                   {s.start_page != null && s.end_page != null ? `Pages ${s.start_page}–${s.end_page}` : "Pages not recorded"}
                 </span>
-                <span className={s.pages_read != null && s.pages_read >= 10 ? "text-accent" : "text-ink-muted"}>
-                  {s.pages_read ?? "—"} pages
+                <span className="flex items-center gap-4">
+                  <span className={s.pages_read != null && s.pages_read >= 10 ? "text-accent" : "text-ink-muted"}>
+                    {s.pages_read ?? "—"} pages
+                  </span>
+                  <Link
+                    href={`/sessions/${s.id}/edit`}
+                    aria-label={`Edit the session on ${s.session_date}`}
+                    className="text-accent underline"
+                  >
+                    Edit
+                  </Link>
                 </span>
               </li>
             ))}
