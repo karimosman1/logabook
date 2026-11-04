@@ -30,6 +30,13 @@ describe("logging past days", () => {
     expect(validateSession(session("2026-11-05"), "2026-11-04").session_date).toBe("That date is in the future.");
   });
 
+  it("editing an older session can keep its own date, but not move it to another old date", () => {
+    expect(validateSession(session("2026-10-01"), "2026-11-04", "2026-10-01")).toEqual({});
+    expect(validateSession(session("2026-10-02"), "2026-11-04", "2026-10-01").session_date).toBe(
+      "You can only log reading from the last 7 days.",
+    );
+  });
+
   it("a forgotten day logged later reconnects the current streak", () => {
     const logged = [
       { session_date: "2026-11-01", pages_read: 10 },
